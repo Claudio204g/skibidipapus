@@ -87,3 +87,39 @@ class RouteTracker:
             self.in_order_traversal(node.left, result)
             result.append(node.key)
             self.in_order_traversal(node.right, result)
+
+    def register_route(self, route_path,cost):
+        route_str = self.route_to_string(route_path)
+        existing_node = self.find_route_in_avl(self.route_frecuency, route_str)
+        
+        if existing_node:
+            count,route = existing_node.key
+            self.route_frecuency = delete_node(self.route_frecuency, existing_node.key)
+            self.route_frecuency = insert(self.route_frecuency, (count + 1, route))
+        else:
+            self.route_frecuency = insert(self.route_frecuency, (1, route_str))
+        
+        self.route_cost[route_str] = cost
+
+        for node in route_path:
+            self.custom_hashmasp.increment(node)
+
+        for node in route_path:
+            node_str = str(node)
+            self.node_visits[node_str] = self.node_visits.get(node_str, 0) + 1
+
+    def get_most_frequent_routes(self, top_n=5):
+        routes = []
+        self.in_order_traversal(self.route_frecuency, routes)
+        routes.sort(reverse=True, key=lambda x: x[0])
+        top_routes = []
+        for count, route in routes[:top_n]:
+            cost = self.route_cost.get(route, 0)
+            top_routes.append((count,route,cost))
+        return top_routes
+    
+    def get_node_visit_stats(self):
+        stats={}
+        for node, count in self.custom_hashmap.items():
+            stats[str(node)] = count
+        return stats
