@@ -33,7 +33,10 @@ class RouteManager:
         while queue:
             current, path, cost, battery, stops, segments = queue.popleft()
             
+            print(f"[DEBUG] Nodo actual: {current.element()}, batería restante: {battery}, ruta: {[v.element() for v in path]}, recargas: {[v.element() for v in stops]}")
+            
             if current == destination:
+                print(f"[DEBUG] ¡Destino alcanzado! Ruta final: {[v.element() for v in path]}, recargas: {[v.element() for v in stops]}")
                 return {
                     "path": [v.element() for v in path],
                     "total_cost": cost,
@@ -51,6 +54,7 @@ class RouteManager:
                 
                 # Caso 1: Batería suficiente
                 if edge_cost <= battery:
+                    print(f"[DEBUG] Avanzando a {neighbor.element()} (costo {edge_cost}), batería suficiente ({battery} >= {edge_cost})")
                     queue.append((
                         neighbor,
                         path + [neighbor],
@@ -65,6 +69,7 @@ class RouteManager:
                         if station != current and station not in path:
                             edge_to_station = self.graph.get_edge(current, station)
                             if edge_to_station and edge_to_station.element() <= battery:
+                                print(f"[DEBUG] Recargando en estación {station.element()} desde {current.element()} (costo {edge_to_station.element()})")
                                 queue.append((
                                     station,
                                     path + [station],
@@ -73,6 +78,7 @@ class RouteManager:
                                     stops + [station],
                                     segments + [current.element()]
                                 ))
+        print("[DEBUG] No se encontró ruta posible.")
         return None
 
 class RouteTracker:
@@ -192,17 +198,41 @@ class RouteOptimizer:
 
     def suggested_optimized_route(self, origin_id, destination_id, battery_limit=50):
         frequent_routes = self.tracker.get_most_frequent_routes()
+        # 1. Buscar ruta histórica completa
         for count, route_str, cost in frequent_routes:
             nodes = route_str.split(" -> ")
             if nodes[0] == str(origin_id) and nodes[-1] == str(destination_id):
                 self.add_report(f"Usando ruta frecuente existente: {route_str}")
+                # Intentar obtener paradas de recarga reales para la ruta histórica
+                recharge_info = self.manager.find_route_with_recharge(origin_id, destination_id, battery_limit)
                 return {
                     'path': nodes,
                     'total_cost': cost,
+                    'recharge_stops': recharge_info['recharge_stops'] if recharge_info else [],
                     'source': 'historical',
                     'confidence': min(100, count * 10)
                 }
-        # No segment combination implemented for simplicity
+        # 2. Intentar combinar segmentos históricos
+        for count1, route1, cost1 in frequent_routes:
+            nodes1 = route1.split(" -> ")
+            if nodes1[0] == str(origin_id):
+                for count2, route2, cost2 in frequent_routes:
+                    nodes2 = route2.split(" -> ")
+                    if nodes1[-1] == nodes2[0] and nodes2[-1] == str(destination_id):
+                        # Combinar rutas
+                        combined_path = nodes1 + nodes2[1:]
+                        combined_cost = cost1 + cost2
+                        self.add_report(f"Combinando segmentos: {route1} + {route2}")
+                        # Intentar obtener paradas de recarga para la ruta combinada
+                        recharge_info = self.manager.find_route_with_recharge(origin_id, destination_id, battery_limit)
+                        return {
+                            'path': combined_path,
+                            'total_cost': combined_cost,
+                            'recharge_stops': recharge_info['recharge_stops'] if recharge_info else [],
+                            'source': 'segment_combination',
+                            'confidence': 70
+                        }
+        # 3. Calcular nueva ruta
         new_route = self.manager.find_route_with_recharge(origin_id, destination_id, battery_limit)
         if new_route:
             self.tracker.register_route(new_route['path'], new_route['total_cost'])
@@ -217,6 +247,7 @@ class RouteOptimizer:
             return {
                 'path': [],
                 'total_cost': 0,
+                'recharge_stops': [],
                 'source': 'no_route',
                 'confidence': 0
             }
@@ -310,7 +341,7 @@ class OrderSimulator:
             print(f"Orden #{result['order_number']}: {result['origin']} → {result['destination']}")
             print(f"Ruta: {result['path']}")
             print(f"Costo: {result['cost']:.1f} | Batería usada: {result['battery_used']:.1f}%")
-            print(f"Paradas de recarga: {result['recharge_stops'] if result['recharge_stops'] else '[]'}")
+            print(f"Paradas de recarga: {len(result['recharge_stops'])} recargas ({result['recharge_stops']})")
             print(f"Tipo: {self.translate_source(result['source'])}")
             print("-" * 50)
         self.show_statistical_summary()
@@ -393,4 +424,68 @@ if __name__ == "__main__":
     clients = [vB, vC, vD, vE]
     # Simular
     sim = OrderSimulator(g, warehouse, clients)
-    sim.process_orders(5)
+    # Forzar estaciones de recarga útiles ANTES de las simulaciones
+    sim.route_manager.add_charging_station(vC)
+    sim.route_manager.add_charging_station(vD)
+
+    # Primeras órdenes para poblar rutas históricas
+    print("\nSimulación inicial para poblar rutas históricas:")
+    sim.process_orders(7)  # Cambiado a 7 simulaciones
+
+    # Forzar una combinación de segmentos
+    print("\nSimulación con combinación de segmentos:")
+    sim.route_tracker.register_route(['A', 'B', 'C'], 35)  # A->B->C
+    sim.route_tracker.register_route(['C', 'D', 'E'], 35)  # C->D->E
+    order_data = {
+        'origin': vA,
+        'destination': vE,
+        'battery_limit': 100,
+        'timestamp': datetime.now()
+    }
+    result = sim.process_single_order(order_data)
+    print(f"\nOrden combinada: {result['origin']} → {result['destination']}")
+    print(f"Ruta: {result['path']}")
+    print(f"Costo: {result['cost']:.1f} | Batería usada: {result['battery_used']:.1f}%")
+    print(f"Paradas de recarga: {len(result['recharge_stops'])} recargas ({result['recharge_stops']})")
+    print(f"Tipo: {sim.translate_source(result['source'])}")
+    print("-" * 50)
+    sim.show_statistical_summary()
+
+    # --- SIMULACIÓN EXTRA: Recarga obligatoria ---
+    print("\nSimulación donde es obligatoria la recarga de energía:")
+    order_data_recarga = {
+        'origin': vA,
+        'destination': vE,
+        'battery_limit': 25,  # Menor que cualquier tramo largo
+        'timestamp': datetime.now()
+    }
+    result_recarga = sim.process_single_order(order_data_recarga)
+    print(f"\nOrden con recarga obligatoria: {result_recarga['origin']} → {result_recarga['destination']}")
+    print(f"Ruta: {result_recarga['path']}")
+    print(f"Costo: {result_recarga['cost']:.1f} | Batería usada: {result_recarga['battery_used']:.1f}%")
+    print(f"Paradas de recarga: {len(result_recarga['recharge_stops'])} recargas ({result_recarga['recharge_stops']})")
+    print(f"Tipo: {sim.translate_source(result_recarga['source'])}")
+    print("-" * 50)
+
+    # --- SIMULACIÓN EXTRA: Segmentos combinados obligatorios ---
+    print("\nSimulación donde es obligatoria la combinación de segmentos:")
+    sim.route_tracker = RouteTracker()
+    sim.route_optimizer = RouteOptimizer(sim.route_tracker, sim.route_manager)
+    sim.route_manager.add_charging_station(vC)
+    sim.route_manager.add_charging_station(vD)
+    sim.route_tracker.register_route(['A', 'B', 'C'], 35)  # A->B->C
+    sim.route_tracker.register_route(['C', 'D', 'E'], 35)  # C->D->E
+
+    order_data_segmentos = {
+        'origin': vA,
+        'destination': vE,
+        'battery_limit': 100,
+        'timestamp': datetime.now()
+    }
+    result_segmentos = sim.process_single_order(order_data_segmentos)
+    print(f"\nOrden con combinación obligatoria de segmentos: {result_segmentos['origin']} → {result_segmentos['destination']}")
+    print(f"Ruta: {result_segmentos['path']}")
+    print(f"Costo: {result_segmentos['cost']:.1f} | Batería usada: {result_segmentos['battery_used']:.1f}%")
+    print(f"Paradas de recarga: {len(result_segmentos['recharge_stops'])} recargas ({result_segmentos['recharge_stops']})")
+    print(f"Tipo: {sim.translate_source(result_segmentos['source'])}")
+    print("-" * 50)
