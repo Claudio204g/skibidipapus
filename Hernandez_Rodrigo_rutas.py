@@ -185,3 +185,6 @@ class RouteTracker:
             analysis['critical_nodes'] = sorted(node_stats.items(), key=lambda x: -x[1])[:3]
             
             return analysis
+    
+        def get_optimization_report(self):
+            return self.optimization_report
