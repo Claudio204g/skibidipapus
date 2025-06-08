@@ -123,3 +123,65 @@ class RouteTracker:
         for node, count in self.custom_hashmap.items():
             stats[str(node)] = count
         return stats
+    
+    class RouteOptimizer:
+        def __init__ (self,route_tracker, route_manager):
+            self.route_tracker = route_tracker
+            self.route_manager = route_manager
+            self.optimization_report = []
+            self.segment_cache = defaultdict(list)
+
+        def suggested_optimized_route(self, origin_id, destination_id):
+            frequent_routes = self.tracker.get_most_frequent_routes()
+            for count, route_str, cost in frequent_routes:
+                nodes = route_str.split(" -> ")
+                if nodes[0] == origin_id and nodes[-1] == destination_id:
+                    self.add_report(f"Usando la ruta frecuente existente:{route_str}")
+                    return{
+                        'path': nodes,
+                        'total_cost': cost,
+                        'source': 'historical',
+                        'confidence' : min(100, count * 10)
+                    }
+            matching_segments = self.find_matching_segments(origin_id, destination_id)
+            if matching_segments:
+                best_segment = matching_segments[0]
+                self.add_report(f"Combinando segmentos frecuentes: {' -> '.join(best_segment['segment'])}")
+                return {
+                    'path': best_segment['segment'],
+                    'total_cost': self.estimate_route_cost(best_segment['segment']),
+                    'source': 'segment_combination',
+                    'confidence': min(90, best_segment['frecuency']*5)
+                    
+                }
+            
+            new_route = self.manager.find_route_with_recharge(origin_id, destination_id)
+            self.tracker.register_route(new_route['path'], new_route['total_cost'])
+            self.add_report(f'Calculando nueva ruta: {" -> ".join(new_route["path"])}')
+            return {
+                **new_route,
+                'source': 'new_calculation',
+                'confidence': 50
+            }
+        
+        def analyze_route_patterns(self):
+            analysis = {
+                'most_common_segments': [],
+                'critical_nodes': [],
+                'energy_efficiency': {}
+            }
+            segment_usage = defaultdict(int)
+            frequent_routes = self.tracker.get_most_frequent_routes(top_n=20)
+            
+            for _, route_str, _ in frequent_routes:
+                nodes = route_str.split(" -> ")
+                for i in range(len(nodes) - 1):
+                    segment = f"{nodes[i]},-> {nodes[i + 1]}"
+                    segment_usage[segment] += 1
+
+            analysis['most_common_segments'] = sorted(segment_usage.items(), key=lambda x: -x[1])[:5]
+
+            node_stats = self.tracker.get_node_visit_stats()
+            analysis['critical_nodes'] = sorted(node_stats.items(), key=lambda x: -x[1])[:3]
+            
+            return analysis
