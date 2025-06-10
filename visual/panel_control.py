@@ -3,14 +3,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from collections import defaultdict
-from modelo.grafos import Grafo
-from modelo.vertice import Vertice
-from modelo.arista import Arista
+from modelo.graph import Graph
+from modelo.vertex import Vertex
+from modelo.edge import Edge
 from simulacion.simulacion import Simulacion
 from simulacion.inicializar_simulacion import generar_grafo_conexo, asignar_roles_nodos
 
 # Configuración de la página de Streamlit
-st.set_page_config(layout="wide", page_title="Drone Delivery Simulation")
+st.set_page_config(layout="wide", page_title="Simulación de Entrega con Drones")
 
 # Título principal de la aplicación
 st.title("🚁 Sistema de Entrega con Drones")
@@ -21,7 +21,7 @@ def visualizar_grafo(grafo):
     Convierte nuestro grafo a NetworkX y lo visualiza con matplotlib.
     
     Args:
-        grafo: Objeto Grafo a visualizar
+        grafo: Objeto Graph a visualizar
         
     Returns:
         Figura de matplotlib con el grafo visualizado
@@ -29,12 +29,13 @@ def visualizar_grafo(grafo):
     G = nx.Graph()
     
     # Añadir nodos al grafo de NetworkX
-    for id_vertice, vertice in grafo.vertices.items():
-        G.add_node(id_vertice, rol=vertice.rol)
+    for vertice in grafo.vertices():
+        G.add_node(vertice.element(), rol=vertice.rol)
     
     # Añadir aristas con sus pesos
-    for arista in grafo.aristas.values():
-        G.add_edge(arista.desde_vertice, arista.hasta_vertice, weight=arista.peso)
+    for edge in grafo.edges():
+        origen, destino = edge.endpoints()
+        G.add_edge(origen.element(), destino.element(), weight=edge.element())
     
     # Configurar visualización
     pos = nx.spring_layout(G)  # Algoritmo de posicionamiento de nodos
@@ -137,15 +138,28 @@ def pestaña_exploracion():
     fig = visualizar_grafo(grafo)
     st.pyplot(fig)
     
-    # Selectores para elegir nodos origen y destino
-    nodos = list(grafo.vertices.keys())
-    roles = {n: grafo.vertices[n].rol for n in nodos}
+    # Recopilar información de los nodos para los selectores
+    nodos_ids = [v.element() for v in grafo.vertices()]
+    nodos_por_rol = {
+        'almacen': [v.element() for v in grafo.vertices() if v.rol == 'almacen'],
+        'cliente': [v.element() for v in grafo.vertices() if v.rol == 'cliente'],
+        'recarga': [v.element() for v in grafo.vertices() if v.rol == 'recarga']
+    }
     
+    # Selectores para elegir nodos origen y destino
     col1, col2 = st.columns(2)
     with col1:
-        origen = st.selectbox("Nodo origen", nodos, format_func=lambda x: f"{x} ({roles[x]})")
+        origen = st.selectbox(
+            "Nodo origen", 
+            nodos_ids, 
+            format_func=lambda x: f"{x} ({'almacen' if x in nodos_por_rol['almacen'] else 'recarga' if x in nodos_por_rol['recarga'] else 'cliente'})"
+        )
     with col2:
-        destino = st.selectbox("Nodo destino", nodos, format_func=lambda x: f"{x} ({roles[x]})")
+        destino = st.selectbox(
+            "Nodo destino", 
+            nodos_ids, 
+            format_func=lambda x: f"{x} ({'almacen' if x in nodos_por_rol['almacen'] else 'recarga' if x in nodos_por_rol['recarga'] else 'cliente'})"
+        )
     
     # Selector de algoritmo de ruta
     algoritmo = st.radio("Algoritmo de búsqueda", ["BFS", "DFS", "Dijkstra"], horizontal=True)
@@ -163,9 +177,12 @@ def pestaña_exploracion():
             # Opción para registrar la entrega
             if st.button("✅ Registrar Entrega", type="primary"):
                 pedido = st.session_state.simulacion.procesar_pedido(origen, destino)
-                st.session_state.simulacion.pedidos.append((origen, destino))
-                st.balloons()
-                st.success("¡Entrega registrada exitosamente!")
+                if pedido:
+                    st.session_state.simulacion.pedidos.append(pedido)
+                    st.balloons()
+                    st.success("¡Entrega registrada exitosamente!")
+                else:
+                    st.error("No se pudo registrar la entrega")
         else:
             st.error("No se encontró una ruta válida que cumpla con los requisitos de energía")
 
@@ -230,15 +247,31 @@ def pestaña_comparacion():
         return
     
     grafo = st.session_state.simulacion.grafo
-    nodos = list(grafo.vertices.keys())
-    roles = {n: grafo.vertices[n].rol for n in nodos}
+    
+    # Recopilar información de los nodos para los selectores
+    nodos_ids = [v.element() for v in grafo.vertices()]
+    nodos_por_rol = {
+        'almacen': [v.element() for v in grafo.vertices() if v.rol == 'almacen'],
+        'cliente': [v.element() for v in grafo.vertices() if v.rol == 'cliente'],
+        'recarga': [v.element() for v in grafo.vertices() if v.rol == 'recarga']
+    }
     
     # Selectores de nodos origen y destino
     col1, col2 = st.columns(2)
     with col1:
-        origen = st.selectbox("Origen", nodos, key='comp_origen', format_func=lambda x: f"{x} ({roles[x]})")
+        origen = st.selectbox(
+            "Origen", 
+            nodos_ids, 
+            key='comp_origen',
+            format_func=lambda x: f"{x} ({'almacen' if x in nodos_por_rol['almacen'] else 'recarga' if x in nodos_por_rol['recarga'] else 'cliente'})"
+        )
     with col2:
-        destino = st.selectbox("Destino", nodos, key='comp_destino', format_func=lambda x: f"{x} ({roles[x]})")
+        destino = st.selectbox(
+            "Destino", 
+            nodos_ids, 
+            key='comp_destino',
+            format_func=lambda x: f"{x} ({'almacen' if x in nodos_por_rol['almacen'] else 'recarga' if x in nodos_por_rol['recarga'] else 'cliente'})"
+        )
     
     # Botón para comparar algoritmos
     if st.button("🔍 Comparar"):

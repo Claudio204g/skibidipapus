@@ -1,0 +1,988 @@
+{
+    "vertices": {
+        "0": {
+            "rol": "recarga"
+        },
+        "1": {
+            "rol": "cliente"
+        },
+        "2": {
+            "rol": "cliente"
+        },
+        "3": {
+            "rol": "cliente"
+        },
+        "4": {
+            "rol": "cliente"
+        },
+        "5": {
+            "rol": "cliente"
+        },
+        "6": {
+            "rol": "cliente"
+        },
+        "7": {
+            "rol": "cliente"
+        },
+        "8": {
+            "rol": "cliente"
+        },
+        "9": {
+            "rol": "cliente"
+        },
+        "10": {
+            "rol": "recarga"
+        },
+        "11": {
+            "rol": "almacen"
+        },
+        "12": {
+            "rol": "recarga"
+        },
+        "13": {
+            "rol": "cliente"
+        },
+        "14": {
+            "rol": "cliente"
+        },
+        "15": {
+            "rol": "cliente"
+        },
+        "16": {
+            "rol": "cliente"
+        },
+        "17": {
+            "rol": "cliente"
+        },
+        "18": {
+            "rol": "cliente"
+        },
+        "19": {
+            "rol": "cliente"
+        },
+        "20": {
+            "rol": "almacen"
+        },
+        "21": {
+            "rol": "cliente"
+        },
+        "22": {
+            "rol": "cliente"
+        },
+        "23": {
+            "rol": "almacen"
+        },
+        "24": {
+            "rol": "recarga"
+        },
+        "25": {
+            "rol": "almacen"
+        },
+        "26": {
+            "rol": "cliente"
+        },
+        "27": {
+            "rol": "recarga"
+        },
+        "28": {
+            "rol": "cliente"
+        },
+        "29": {
+            "rol": "almacen"
+        },
+        "30": {
+            "rol": "cliente"
+        },
+        "31": {
+            "rol": "recarga"
+        },
+        "32": {
+            "rol": "cliente"
+        },
+        "33": {
+            "rol": "recarga"
+        },
+        "34": {
+            "rol": "cliente"
+        },
+        "35": {
+            "rol": "cliente"
+        },
+        "36": {
+            "rol": "cliente"
+        },
+        "37": {
+            "rol": "almacen"
+        },
+        "38": {
+            "rol": "cliente"
+        },
+        "39": {
+            "rol": "cliente"
+        },
+        "40": {
+            "rol": "almacen"
+        },
+        "41": {
+            "rol": "recarga"
+        },
+        "42": {
+            "rol": "cliente"
+        },
+        "43": {
+            "rol": "cliente"
+        },
+        "44": {
+            "rol": "cliente"
+        },
+        "45": {
+            "rol": "almacen"
+        },
+        "46": {
+            "rol": "cliente"
+        },
+        "47": {
+            "rol": "almacen"
+        },
+        "48": {
+            "rol": "recarga"
+        }
+    },
+    "aristas": {
+        "11-26": {
+            "desde": 11,
+            "hasta": 26,
+            "peso": 2
+        },
+        "26-4": {
+            "desde": 26,
+            "hasta": 4,
+            "peso": 7
+        },
+        "4-0": {
+            "desde": 4,
+            "hasta": 0,
+            "peso": 8
+        },
+        "0-40": {
+            "desde": 0,
+            "hasta": 40,
+            "peso": 3
+        },
+        "40-17": {
+            "desde": 40,
+            "hasta": 17,
+            "peso": 9
+        },
+        "17-29": {
+            "desde": 17,
+            "hasta": 29,
+            "peso": 3
+        },
+        "29-37": {
+            "desde": 29,
+            "hasta": 37,
+            "peso": 1
+        },
+        "37-28": {
+            "desde": 37,
+            "hasta": 28,
+            "peso": 10
+        },
+        "28-18": {
+            "desde": 28,
+            "hasta": 18,
+            "peso": 6
+        },
+        "18-44": {
+            "desde": 18,
+            "hasta": 44,
+            "peso": 10
+        },
+        "44-1": {
+            "desde": 44,
+            "hasta": 1,
+            "peso": 5
+        },
+        "1-15": {
+            "desde": 1,
+            "hasta": 15,
+            "peso": 4
+        },
+        "15-3": {
+            "desde": 15,
+            "hasta": 3,
+            "peso": 10
+        },
+        "3-7": {
+            "desde": 3,
+            "hasta": 7,
+            "peso": 9
+        },
+        "7-5": {
+            "desde": 7,
+            "hasta": 5,
+            "peso": 8
+        },
+        "5-21": {
+            "desde": 5,
+            "hasta": 21,
+            "peso": 3
+        },
+        "21-8": {
+            "desde": 21,
+            "hasta": 8,
+            "peso": 1
+        },
+        "8-31": {
+            "desde": 8,
+            "hasta": 31,
+            "peso": 8
+        },
+        "31-10": {
+            "desde": 31,
+            "hasta": 10,
+            "peso": 8
+        },
+        "10-41": {
+            "desde": 10,
+            "hasta": 41,
+            "peso": 1
+        },
+        "41-19": {
+            "desde": 41,
+            "hasta": 19,
+            "peso": 8
+        },
+        "19-2": {
+            "desde": 19,
+            "hasta": 2,
+            "peso": 8
+        },
+        "2-22": {
+            "desde": 2,
+            "hasta": 22,
+            "peso": 6
+        },
+        "22-46": {
+            "desde": 22,
+            "hasta": 46,
+            "peso": 1
+        },
+        "46-14": {
+            "desde": 46,
+            "hasta": 14,
+            "peso": 1
+        },
+        "14-30": {
+            "desde": 14,
+            "hasta": 30,
+            "peso": 1
+        },
+        "30-27": {
+            "desde": 30,
+            "hasta": 27,
+            "peso": 5
+        },
+        "27-24": {
+            "desde": 27,
+            "hasta": 24,
+            "peso": 3
+        },
+        "24-25": {
+            "desde": 24,
+            "hasta": 25,
+            "peso": 3
+        },
+        "25-6": {
+            "desde": 25,
+            "hasta": 6,
+            "peso": 8
+        },
+        "6-32": {
+            "desde": 6,
+            "hasta": 32,
+            "peso": 5
+        },
+        "32-35": {
+            "desde": 32,
+            "hasta": 35,
+            "peso": 10
+        },
+        "35-34": {
+            "desde": 35,
+            "hasta": 34,
+            "peso": 4
+        },
+        "34-43": {
+            "desde": 34,
+            "hasta": 43,
+            "peso": 2
+        },
+        "43-13": {
+            "desde": 43,
+            "hasta": 13,
+            "peso": 5
+        },
+        "13-12": {
+            "desde": 13,
+            "hasta": 12,
+            "peso": 2
+        },
+        "12-47": {
+            "desde": 12,
+            "hasta": 47,
+            "peso": 7
+        },
+        "47-9": {
+            "desde": 47,
+            "hasta": 9,
+            "peso": 9
+        },
+        "9-36": {
+            "desde": 9,
+            "hasta": 36,
+            "peso": 8
+        },
+        "36-39": {
+            "desde": 36,
+            "hasta": 39,
+            "peso": 1
+        },
+        "39-45": {
+            "desde": 39,
+            "hasta": 45,
+            "peso": 10
+        },
+        "45-48": {
+            "desde": 45,
+            "hasta": 48,
+            "peso": 5
+        },
+        "48-16": {
+            "desde": 48,
+            "hasta": 16,
+            "peso": 10
+        },
+        "16-20": {
+            "desde": 16,
+            "hasta": 20,
+            "peso": 10
+        },
+        "20-38": {
+            "desde": 20,
+            "hasta": 38,
+            "peso": 8
+        },
+        "38-42": {
+            "desde": 38,
+            "hasta": 42,
+            "peso": 1
+        },
+        "42-23": {
+            "desde": 42,
+            "hasta": 23,
+            "peso": 2
+        },
+        "23-33": {
+            "desde": 23,
+            "hasta": 33,
+            "peso": 9
+        },
+        "3-39": {
+            "desde": 3,
+            "hasta": 39,
+            "peso": 5
+        },
+        "12-8": {
+            "desde": 12,
+            "hasta": 8,
+            "peso": 10
+        },
+        "47-36": {
+            "desde": 47,
+            "hasta": 36,
+            "peso": 10
+        },
+        "38-23": {
+            "desde": 38,
+            "hasta": 23,
+            "peso": 2
+        },
+        "33-39": {
+            "desde": 33,
+            "hasta": 39,
+            "peso": 7
+        },
+        "22-4": {
+            "desde": 22,
+            "hasta": 4,
+            "peso": 6
+        },
+        "19-24": {
+            "desde": 19,
+            "hasta": 24,
+            "peso": 9
+        },
+        "4-33": {
+            "desde": 4,
+            "hasta": 33,
+            "peso": 7
+        },
+        "32-19": {
+            "desde": 32,
+            "hasta": 19,
+            "peso": 6
+        },
+        "30-1": {
+            "desde": 30,
+            "hasta": 1,
+            "peso": 2
+        },
+        "44-34": {
+            "desde": 44,
+            "hasta": 34,
+            "peso": 3
+        },
+        "8-36": {
+            "desde": 8,
+            "hasta": 36,
+            "peso": 2
+        },
+        "17-11": {
+            "desde": 17,
+            "hasta": 11,
+            "peso": 1
+        },
+        "13-39": {
+            "desde": 13,
+            "hasta": 39,
+            "peso": 6
+        },
+        "19-7": {
+            "desde": 19,
+            "hasta": 7,
+            "peso": 2
+        },
+        "9-33": {
+            "desde": 9,
+            "hasta": 33,
+            "peso": 8
+        },
+        "12-9": {
+            "desde": 12,
+            "hasta": 9,
+            "peso": 6
+        },
+        "26-12": {
+            "desde": 26,
+            "hasta": 12,
+            "peso": 1
+        },
+        "39-8": {
+            "desde": 39,
+            "hasta": 8,
+            "peso": 6
+        },
+        "19-16": {
+            "desde": 19,
+            "hasta": 16,
+            "peso": 2
+        },
+        "43-9": {
+            "desde": 43,
+            "hasta": 9,
+            "peso": 2
+        },
+        "45-37": {
+            "desde": 45,
+            "hasta": 37,
+            "peso": 3
+        },
+        "37-18": {
+            "desde": 37,
+            "hasta": 18,
+            "peso": 1
+        },
+        "10-34": {
+            "desde": 10,
+            "hasta": 34,
+            "peso": 1
+        },
+        "31-15": {
+            "desde": 31,
+            "hasta": 15,
+            "peso": 2
+        },
+        "30-43": {
+            "desde": 30,
+            "hasta": 43,
+            "peso": 7
+        },
+        "6-24": {
+            "desde": 6,
+            "hasta": 24,
+            "peso": 5
+        },
+        "1-37": {
+            "desde": 1,
+            "hasta": 37,
+            "peso": 10
+        },
+        "12-36": {
+            "desde": 12,
+            "hasta": 36,
+            "peso": 3
+        },
+        "44-31": {
+            "desde": 44,
+            "hasta": 31,
+            "peso": 4
+        },
+        "39-31": {
+            "desde": 39,
+            "hasta": 31,
+            "peso": 8
+        },
+        "11-41": {
+            "desde": 11,
+            "hasta": 41,
+            "peso": 10
+        },
+        "19-47": {
+            "desde": 19,
+            "hasta": 47,
+            "peso": 1
+        },
+        "33-14": {
+            "desde": 33,
+            "hasta": 14,
+            "peso": 5
+        },
+        "18-11": {
+            "desde": 18,
+            "hasta": 11,
+            "peso": 3
+        },
+        "45-38": {
+            "desde": 45,
+            "hasta": 38,
+            "peso": 4
+        },
+        "29-40": {
+            "desde": 29,
+            "hasta": 40,
+            "peso": 5
+        },
+        "15-26": {
+            "desde": 15,
+            "hasta": 26,
+            "peso": 10
+        },
+        "20-0": {
+            "desde": 20,
+            "hasta": 0,
+            "peso": 3
+        },
+        "31-35": {
+            "desde": 31,
+            "hasta": 35,
+            "peso": 4
+        },
+        "20-7": {
+            "desde": 20,
+            "hasta": 7,
+            "peso": 7
+        },
+        "35-14": {
+            "desde": 35,
+            "hasta": 14,
+            "peso": 9
+        },
+        "1-42": {
+            "desde": 1,
+            "hasta": 42,
+            "peso": 2
+        },
+        "10-36": {
+            "desde": 10,
+            "hasta": 36,
+            "peso": 3
+        },
+        "32-13": {
+            "desde": 32,
+            "hasta": 13,
+            "peso": 9
+        },
+        "8-1": {
+            "desde": 8,
+            "hasta": 1,
+            "peso": 4
+        },
+        "17-48": {
+            "desde": 17,
+            "hasta": 48,
+            "peso": 2
+        },
+        "0-25": {
+            "desde": 0,
+            "hasta": 25,
+            "peso": 2
+        },
+        "2-15": {
+            "desde": 2,
+            "hasta": 15,
+            "peso": 7
+        },
+        "2-0": {
+            "desde": 2,
+            "hasta": 0,
+            "peso": 4
+        },
+        "17-33": {
+            "desde": 17,
+            "hasta": 33,
+            "peso": 6
+        },
+        "34-0": {
+            "desde": 34,
+            "hasta": 0,
+            "peso": 5
+        },
+        "0-44": {
+            "desde": 0,
+            "hasta": 44,
+            "peso": 4
+        },
+        "17-37": {
+            "desde": 17,
+            "hasta": 37,
+            "peso": 5
+        },
+        "40-44": {
+            "desde": 40,
+            "hasta": 44,
+            "peso": 10
+        },
+        "41-23": {
+            "desde": 41,
+            "hasta": 23,
+            "peso": 8
+        },
+        "7-24": {
+            "desde": 7,
+            "hasta": 24,
+            "peso": 6
+        },
+        "39-11": {
+            "desde": 39,
+            "hasta": 11,
+            "peso": 9
+        },
+        "23-37": {
+            "desde": 23,
+            "hasta": 37,
+            "peso": 2
+        },
+        "38-17": {
+            "desde": 38,
+            "hasta": 17,
+            "peso": 10
+        },
+        "6-20": {
+            "desde": 6,
+            "hasta": 20,
+            "peso": 7
+        },
+        "43-32": {
+            "desde": 43,
+            "hasta": 32,
+            "peso": 9
+        },
+        "28-33": {
+            "desde": 28,
+            "hasta": 33,
+            "peso": 4
+        },
+        "17-27": {
+            "desde": 17,
+            "hasta": 27,
+            "peso": 1
+        },
+        "30-37": {
+            "desde": 30,
+            "hasta": 37,
+            "peso": 3
+        },
+        "42-47": {
+            "desde": 42,
+            "hasta": 47,
+            "peso": 1
+        },
+        "33-19": {
+            "desde": 33,
+            "hasta": 19,
+            "peso": 10
+        },
+        "24-35": {
+            "desde": 24,
+            "hasta": 35,
+            "peso": 4
+        },
+        "14-18": {
+            "desde": 14,
+            "hasta": 18,
+            "peso": 3
+        },
+        "35-46": {
+            "desde": 35,
+            "hasta": 46,
+            "peso": 5
+        },
+        "10-15": {
+            "desde": 10,
+            "hasta": 15,
+            "peso": 10
+        },
+        "43-27": {
+            "desde": 43,
+            "hasta": 27,
+            "peso": 10
+        },
+        "38-44": {
+            "desde": 38,
+            "hasta": 44,
+            "peso": 5
+        },
+        "21-26": {
+            "desde": 21,
+            "hasta": 26,
+            "peso": 2
+        },
+        "0-3": {
+            "desde": 0,
+            "hasta": 3,
+            "peso": 5
+        },
+        "9-2": {
+            "desde": 9,
+            "hasta": 2,
+            "peso": 8
+        },
+        "30-3": {
+            "desde": 30,
+            "hasta": 3,
+            "peso": 8
+        },
+        "12-38": {
+            "desde": 12,
+            "hasta": 38,
+            "peso": 10
+        },
+        "4-40": {
+            "desde": 4,
+            "hasta": 40,
+            "peso": 1
+        },
+        "7-15": {
+            "desde": 7,
+            "hasta": 15,
+            "peso": 1
+        },
+        "21-38": {
+            "desde": 21,
+            "hasta": 38,
+            "peso": 7
+        },
+        "36-45": {
+            "desde": 36,
+            "hasta": 45,
+            "peso": 2
+        },
+        "24-16": {
+            "desde": 24,
+            "hasta": 16,
+            "peso": 4
+        },
+        "46-47": {
+            "desde": 46,
+            "hasta": 47,
+            "peso": 6
+        },
+        "37-22": {
+            "desde": 37,
+            "hasta": 22,
+            "peso": 7
+        },
+        "10-21": {
+            "desde": 10,
+            "hasta": 21,
+            "peso": 7
+        },
+        "8-33": {
+            "desde": 8,
+            "hasta": 33,
+            "peso": 4
+        },
+        "20-41": {
+            "desde": 20,
+            "hasta": 41,
+            "peso": 3
+        },
+        "45-42": {
+            "desde": 45,
+            "hasta": 42,
+            "peso": 10
+        },
+        "35-22": {
+            "desde": 35,
+            "hasta": 22,
+            "peso": 3
+        },
+        "37-46": {
+            "desde": 37,
+            "hasta": 46,
+            "peso": 2
+        },
+        "10-0": {
+            "desde": 10,
+            "hasta": 0,
+            "peso": 7
+        },
+        "18-21": {
+            "desde": 18,
+            "hasta": 21,
+            "peso": 10
+        },
+        "41-32": {
+            "desde": 41,
+            "hasta": 32,
+            "peso": 10
+        },
+        "28-12": {
+            "desde": 28,
+            "hasta": 12,
+            "peso": 5
+        },
+        "37-14": {
+            "desde": 37,
+            "hasta": 14,
+            "peso": 7
+        },
+        "13-5": {
+            "desde": 13,
+            "hasta": 5,
+            "peso": 8
+        },
+        "17-14": {
+            "desde": 17,
+            "hasta": 14,
+            "peso": 9
+        },
+        "34-14": {
+            "desde": 34,
+            "hasta": 14,
+            "peso": 6
+        },
+        "27-33": {
+            "desde": 27,
+            "hasta": 33,
+            "peso": 6
+        },
+        "8-42": {
+            "desde": 8,
+            "hasta": 42,
+            "peso": 10
+        },
+        "0-21": {
+            "desde": 0,
+            "hasta": 21,
+            "peso": 6
+        },
+        "41-42": {
+            "desde": 41,
+            "hasta": 42,
+            "peso": 5
+        },
+        "35-13": {
+            "desde": 35,
+            "hasta": 13,
+            "peso": 8
+        },
+        "17-46": {
+            "desde": 17,
+            "hasta": 46,
+            "peso": 7
+        },
+        "37-12": {
+            "desde": 37,
+            "hasta": 12,
+            "peso": 8
+        },
+        "34-38": {
+            "desde": 34,
+            "hasta": 38,
+            "peso": 9
+        },
+        "31-45": {
+            "desde": 31,
+            "hasta": 45,
+            "peso": 8
+        },
+        "6-39": {
+            "desde": 6,
+            "hasta": 39,
+            "peso": 1
+        },
+        "18-17": {
+            "desde": 18,
+            "hasta": 17,
+            "peso": 9
+        },
+        "9-17": {
+            "desde": 9,
+            "hasta": 17,
+            "peso": 10
+        },
+        "31-29": {
+            "desde": 31,
+            "hasta": 29,
+            "peso": 7
+        },
+        "1-23": {
+            "desde": 1,
+            "hasta": 23,
+            "peso": 3
+        },
+        "32-45": {
+            "desde": 32,
+            "hasta": 45,
+            "peso": 4
+        },
+        "35-0": {
+            "desde": 35,
+            "hasta": 0,
+            "peso": 5
+        },
+        "13-10": {
+            "desde": 13,
+            "hasta": 10,
+            "peso": 8
+        },
+        "33-21": {
+            "desde": 33,
+            "hasta": 21,
+            "peso": 1
+        },
+        "46-32": {
+            "desde": 46,
+            "hasta": 32,
+            "peso": 3
+        },
+        "31-17": {
+            "desde": 31,
+            "hasta": 17,
+            "peso": 7
+        }
+    }
+}

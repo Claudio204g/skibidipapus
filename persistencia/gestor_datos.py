@@ -1,5 +1,8 @@
 import json
 import os
+from modelo.graph import Graph
+from modelo.vertex import Vertex
+from modelo.edge import Edge
 
 class GestorDatos:
     def __init__(self, directorio_datos="datos"):
@@ -11,29 +14,37 @@ class GestorDatos:
         ruta = os.path.join(self.directorio, nombre_archivo)
         datos = {
             "vertices": {},
-            "aristas": {}
+            "aristas": []
         }
         
+        # Mapeo de objetos Vertex a IDs para serialización
+        vertex_to_id = {}
+        
         # Guardar vértices
-        for id_vertice, vertice in grafo.vertices.items():
-            datos["vertices"][id_vertice] = {
+        for i, vertice in enumerate(grafo.vertices()):
+            vertex_id = vertice.element()
+            vertex_to_id[vertice] = vertex_id
+            datos["vertices"][str(vertex_id)] = {
                 "rol": vertice.rol
             }
         
         # Guardar aristas
-        for id_arista, arista in grafo.aristas.items():
-            datos["aristas"][id_arista] = {
-                "desde": arista.desde_vertice,
-                "hasta": arista.hasta_vertice,
-                "peso": arista.peso
-            }
+        for arista in grafo.edges():
+            origen, destino = arista.endpoints()
+            origen_id = vertex_to_id[origen]
+            destino_id = vertex_to_id[destino]
+            peso = arista.element()
+            
+            datos["aristas"].append({
+                "origen": origen_id,
+                "destino": destino_id,
+                "peso": peso
+            })
         
         with open(ruta, 'w') as archivo:
             json.dump(datos, archivo, indent=4)
     
     def cargar_grafo(self, nombre_archivo="grafo.json"):
-        from modelo.grafos import Grafo
-        
         ruta = os.path.join(self.directorio, nombre_archivo)
         if not os.path.exists(ruta):
             return None
@@ -41,15 +52,24 @@ class GestorDatos:
         with open(ruta, 'r') as archivo:
             datos = json.load(archivo)
         
-        grafo = Grafo()
+        grafo = Graph()
+        
+        # Mapeo de IDs a objetos Vertex
+        id_to_vertex = {}
         
         # Cargar vértices
         for id_vertice, info in datos["vertices"].items():
-            grafo.agregar_vertice(id_vertice, info["rol"])
+            vertex = grafo.insert_vertex(int(id_vertice) if id_vertice.isdigit() else id_vertice)
+            vertex.rol = info["rol"]
+            id_to_vertex[id_vertice] = vertex
         
         # Cargar aristas
-        for id_arista, info in datos["aristas"].items():
-            grafo.agregar_arista(info["desde"], info["hasta"], info["peso"])
+        for info_arista in datos["aristas"]:
+            origen_id = str(info_arista["origen"])
+            destino_id = str(info_arista["destino"])
+            
+            if origen_id in id_to_vertex and destino_id in id_to_vertex:
+                grafo.insert_edge(id_to_vertex[origen_id], id_to_vertex[destino_id], info_arista["peso"])
         
         return grafo
     

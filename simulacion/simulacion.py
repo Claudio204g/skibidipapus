@@ -1,8 +1,11 @@
-from tda.arbol_avl import ArbolAVL
+from tda.AVL import AVLTree
 from dominio.pedido import Pedido
 from dominio.ruta import Ruta
 from collections import defaultdict
 import random
+from modelo.graph import Graph
+from modelo.vertex import Vertex
+from modelo.edge import Edge
 
 class Simulacion:
     """
@@ -11,9 +14,25 @@ class Simulacion:
     """
     def __init__(self):
         self.grafo = None  # Grafo que representa la red de nodos
-        self.seguimiento_rutas = ArbolAVL()  # Árbol AVL para guardar y recuperar rutas eficientemente
+        self.seguimiento_rutas = AVLTree()  # Árbol AVL para guardar y recuperar rutas eficientemente
         self.pedidos = []  # Lista de pedidos procesados
         self.estadisticas_nodos = defaultdict(lambda: {'como_origen': 0, 'como_destino': 0})  # Estadísticas de uso de nodos
+        self.vertex_map = {}  # Diccionario para mapear IDs a objetos Vertex
+        
+    def _find_vertex_by_id(self, vertex_id):
+        """
+        Encuentra un vértice por su ID
+        
+        Args:
+            vertex_id: ID del vértice a buscar
+            
+        Returns:
+            Objeto Vertex o None si no se encuentra
+        """
+        for v in self.grafo.vertices():
+            if v.element() == vertex_id:
+                return v
+        return None
     
     def generar_pedidos_aleatorios(self, n_pedidos):
         """
@@ -26,8 +45,8 @@ class Simulacion:
             Lista de tuplas (origen, destino) para los pedidos
         """
         # Obtener nodos según su rol
-        nodos_almacen = [v.id for v in self.grafo.vertices.values() if v.rol == 'almacen']
-        nodos_cliente = [v.id for v in self.grafo.vertices.values() if v.rol == 'cliente']
+        nodos_almacen = [v.element() for v in self.grafo.vertices() if v.rol == 'almacen']
+        nodos_cliente = [v.element() for v in self.grafo.vertices() if v.rol == 'cliente']
         
         # Verificar que haya nodos de ambos tipos
         if not nodos_almacen or not nodos_cliente:
@@ -112,20 +131,31 @@ class Simulacion:
         if inicio == fin:
             return [inicio]
         
+        # Convertir IDs a objetos Vertex
+        vertice_inicio = self._find_vertex_by_id(inicio)
+        vertice_fin = self._find_vertex_by_id(fin)
+        
+        if not vertice_inicio or not vertice_fin:
+            return None
+        
         # Inicialización de BFS
-        visitados = set([inicio])
-        cola = [[inicio]]  # Cola de rutas parciales
-        nodos_recarga = [v.id for v in self.grafo.vertices.values() if v.rol == 'recarga']
+        visitados = set([vertice_inicio])
+        cola = [[vertice_inicio]]  # Cola de rutas parciales
+        nodos_recarga = [v for v in self.grafo.vertices() if v.rol == 'recarga']
         
         while cola:
             ruta = cola.pop(0)  # Obtener primera ruta de la cola
-            nodo = ruta[-1]  # Último nodo de la ruta actual
-            energia_restante = self._calcular_energia_restante(ruta, energia_inicial, nodos_recarga)
+            vertice_actual = ruta[-1]  # Último nodo de la ruta actual
+            
+            # Convertir la ruta a IDs para calcular energía
+            ruta_ids = [v.element() for v in ruta]
+            energia_restante = self._calcular_energia_restante(ruta_ids, energia_inicial, [v.element() for v in nodos_recarga])
             
             # Explorar vecinos
-            for vecino in self.grafo.obtener_vecinos(nodo):
+            for vecino in self.grafo.neighbors(vertice_actual):
                 if vecino not in visitados:
-                    peso = self.grafo.obtener_peso_arista(nodo, vecino)
+                    edge = self.grafo.get_edge(vertice_actual, vecino)
+                    peso = edge.element() if edge else 0
                     energia_requerida = peso * 1.2 if peso else 0  # Consumo de energía para esta arista
                     
                     # Verificar si hay suficiente energía para moverse
@@ -133,9 +163,9 @@ class Simulacion:
                         nueva_ruta = list(ruta)
                         nueva_ruta.append(vecino)
                         
-                        # Si encontramos el destino, devolvemos la ruta
-                        if vecino == fin:
-                            return nueva_ruta
+                        # Si encontramos el destino, devolvemos la ruta convertida a IDs
+                        if vecino == vertice_fin:
+                            return [v.element() for v in nueva_ruta]
                         
                         visitados.add(vecino)
                         cola.append(nueva_ruta)
@@ -148,7 +178,7 @@ class Simulacion:
         Tiene en cuenta estaciones de recarga en el camino.
         
         Args:
-            ruta: Lista de nodos que forman la ruta
+            ruta: Lista de IDs de nodos que forman la ruta
             energia_inicial: Energía máxima del drone
             nodos_recarga: Lista de IDs de nodos de recarga
             
@@ -159,14 +189,18 @@ class Simulacion:
         
         # Recorrer la ruta calculando el consumo
         for i in range(len(ruta) - 1):
-            peso = self.grafo.obtener_peso_arista(ruta[i], ruta[i+1])
-            if peso:
-                energia_restante -= peso * 1.2  # Consumo proporcional al peso
-            
-            # Recargar si estamos en un nodo de recarga
-            if ruta[i+1] in nodos_recarga:
-                energia_restante = min(energia_restante + 50, energia_inicial)  # Recarga parcial
+            v1 = self._find_vertex_by_id(ruta[i])
+            v2 = self._find_vertex_by_id(ruta[i+1])
+            if v1 and v2:
+                edge = self.grafo.get_edge(v1, v2)
+                peso = edge.element() if edge else 0
+                if peso:
+                    energia_restante -= peso * 1.2  # Consumo proporcional al peso
                 
+                # Recargar si estamos en un nodo de recarga
+                if ruta[i+1] in nodos_recarga:
+                    energia_restante = min(energia_restante + 50, energia_inicial)  # Recarga parcial
+                    
         return energia_restante
     
     def ruta_dfs(self, inicio, fin, max_profundidad=100):
@@ -181,25 +215,32 @@ class Simulacion:
         Returns:
             Lista de nodos que forman la ruta o None si no hay ruta
         """
+        # Convertir IDs a objetos Vertex
+        vertice_inicio = self._find_vertex_by_id(inicio)
+        vertice_fin = self._find_vertex_by_id(fin)
+        
+        if not vertice_inicio or not vertice_fin:
+            return None
+            
         visitados = set()
         ruta = []
         encontrado = [False]  # Uso de lista para poder modificarlo en la función anidada
         
-        def dfs_recursivo(nodo, profundidad):
+        def dfs_recursivo(vertice, profundidad):
             # Caso base: profundidad máxima alcanzada
             if profundidad > max_profundidad:
                 return
             
-            visitados.add(nodo)
-            ruta.append(nodo)
+            visitados.add(vertice)
+            ruta.append(vertice)
             
             # Si encontramos el destino, terminamos
-            if nodo == fin:
+            if vertice == vertice_fin:
                 encontrado[0] = True
                 return
             
             # Explorar vecinos no visitados
-            for vecino in self.grafo.obtener_vecinos(nodo):
+            for vecino in self.grafo.neighbors(vertice):
                 if vecino not in visitados and not encontrado[0]:
                     dfs_recursivo(vecino, profundidad + 1)
             
@@ -208,8 +249,8 @@ class Simulacion:
                 ruta.pop()
         
         # Iniciar búsqueda DFS
-        dfs_recursivo(inicio, 0)
-        return ruta if encontrado[0] else None
+        dfs_recursivo(vertice_inicio, 0)
+        return [v.element() for v in ruta] if encontrado[0] else None
     
     def ruta_dijkstra(self, inicio, fin, energia_inicial=100):
         """
@@ -224,41 +265,49 @@ class Simulacion:
         Returns:
             Lista de nodos que forman la ruta óptima o None si no hay ruta factible
         """
+        # Convertir IDs a objetos Vertex
+        vertice_inicio = self._find_vertex_by_id(inicio)
+        vertice_fin = self._find_vertex_by_id(fin)
+        
+        if not vertice_inicio or not vertice_fin:
+            return None
+            
         # Caso base: origen y destino son el mismo
-        if inicio == fin:
+        if vertice_inicio == vertice_fin:
             return [inicio]
         
         # Inicializar distancias como infinito
-        distancias = {vertice: float('infinity') for vertice in self.grafo.vertices}
-        distancias[inicio] = 0
+        distancias = {vertice: float('infinity') for vertice in self.grafo.vertices()}
+        distancias[vertice_inicio] = 0
         
         # Predecesores para reconstruir la ruta
-        predecesores = {vertice: None for vertice in self.grafo.vertices}
+        predecesores = {vertice: None for vertice in self.grafo.vertices()}
         
         # Energía restante al llegar a cada nodo
-        energia_restante = {vertice: 0 for vertice in self.grafo.vertices}
-        energia_restante[inicio] = energia_inicial
+        energia_restante = {vertice: 0 for vertice in self.grafo.vertices()}
+        energia_restante[vertice_inicio] = energia_inicial
         
         # Nodos no visitados y nodos de recarga
-        no_visitados = list(self.grafo.vertices.keys())
-        nodos_recarga = [v.id for v in self.grafo.vertices.values() if v.rol == 'recarga']
+        no_visitados = list(self.grafo.vertices())
+        nodos_recarga = [v for v in self.grafo.vertices() if v.rol == 'recarga']
         
         while no_visitados:
             # Encontrar el nodo con menor distancia entre los no visitados
-            actual = min(no_visitados, key=lambda x: distancias[x])
+            actual = min(no_visitados, key=lambda x: distancias.get(x, float('infinity')))
             
             # Si llegamos al destino o no hay ruta posible
-            if actual == fin or distancias[actual] == float('infinity'):
+            if actual == vertice_fin or distancias[actual] == float('infinity'):
                 break
                 
             no_visitados.remove(actual)
             
             # Explorar vecinos no visitados
-            for vecino in self.grafo.obtener_vecinos(actual):
+            for vecino in self.grafo.neighbors(actual):
                 if vecino not in no_visitados:
                     continue
                     
-                peso = self.grafo.obtener_peso_arista(actual, vecino)
+                edge = self.grafo.get_edge(actual, vecino)
+                peso = edge.element() if edge else 0
                 if not peso:
                     continue
                 
@@ -287,14 +336,14 @@ class Simulacion:
                     energia_restante[vecino] = nueva_energia
         
         # Reconstruir la ruta si existe
-        if fin not in predecesores or predecesores[fin] is None:
+        if predecesores[vertice_fin] is None:
             return None  # No hay ruta factible
             
-        ruta = [fin]
-        while ruta[0] != inicio:
-            ruta.insert(0, predecesores[ruta[0]])
+        ruta_vertices = [vertice_fin]
+        while ruta_vertices[0] != vertice_inicio:
+            ruta_vertices.insert(0, predecesores[ruta_vertices[0]])
             
-        return ruta
+        return [v.element() for v in ruta_vertices]
     
     def calcular_costo_ruta(self, ruta):
         """
@@ -308,9 +357,13 @@ class Simulacion:
         """
         total = 0
         for i in range(len(ruta)-1):
-            peso = self.grafo.obtener_peso_arista(ruta[i], ruta[i+1])
-            if peso:
-                total += peso
+            v1 = self._find_vertex_by_id(ruta[i])
+            v2 = self._find_vertex_by_id(ruta[i+1])
+            if v1 and v2:
+                edge = self.grafo.get_edge(v1, v2)
+                peso = edge.element() if edge else 0
+                if peso:
+                    total += peso
         return total
     
     def calcular_energia_necesaria(self, ruta):
@@ -328,9 +381,13 @@ class Simulacion:
             
         energia_total = 0
         for i in range(len(ruta) - 1):
-            peso = self.grafo.obtener_peso_arista(ruta[i], ruta[i+1])
-            if peso:
-                energia_total += peso * 1.2  # Factor de consumo de energía
+            v1 = self._find_vertex_by_id(ruta[i])
+            v2 = self._find_vertex_by_id(ruta[i+1])
+            if v1 and v2:
+                edge = self.grafo.get_edge(v1, v2)
+                peso = edge.element() if edge else 0
+                if peso:
+                    energia_total += peso * 1.2  # Factor de consumo de energía
         
         return energia_total
     
@@ -349,13 +406,19 @@ class Simulacion:
             return True
             
         energia_restante = energia_inicial
-        nodos_recarga = [v.id for v in self.grafo.vertices.values() if v.rol == 'recarga']
+        nodos_recarga = [v.element() for v in self.grafo.vertices() if v.rol == 'recarga']
         
         for i in range(len(ruta) - 1):
-            peso = self.grafo.obtener_peso_arista(ruta[i], ruta[i+1])
-            if not peso:
+            v1 = self._find_vertex_by_id(ruta[i])
+            v2 = self._find_vertex_by_id(ruta[i+1])
+            if not v1 or not v2:
+                return False  # Nodo no encontrado
+                
+            edge = self.grafo.get_edge(v1, v2)
+            if not edge:
                 return False  # No hay conexión directa
                 
+            peso = edge.element()
             energia_necesaria = peso * 1.2
             if energia_necesaria > energia_restante:
                 return False  # No hay suficiente energía

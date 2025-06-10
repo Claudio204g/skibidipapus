@@ -1,11 +1,11 @@
 import random
 from collections import deque, defaultdict
-from graph import Graph
-from vertex import Vertex
-from edge import Edge
+from modelo.graph import Graph
+from modelo.vertex import Vertex
+from modelo.edge import Edge
 from datetime import datetime
 from typing import List, Dict
-from AVL import insert, delete_node
+from tda.AVL import insert, delete_node
 
 class RouteManager:
     def __init__(self, graph: Graph):

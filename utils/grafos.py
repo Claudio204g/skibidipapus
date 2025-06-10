@@ -1,5 +1,5 @@
-from modelo.vertice import Vertice
-from modelo.arista import Arista
+from utils.vertice import Vertice
+from utils.arista import Arista
 
 class Grafo:
     """

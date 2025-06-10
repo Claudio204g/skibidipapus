@@ -2,7 +2,7 @@ class Drone:
     """
     Representa un drone de entrega en la simulación.
     
-    Attributes:
+    Atributos:
         id: Identificador único del drone
         energia_maxima: Capacidad máxima de energía
         energia_actual: Nivel actual de energía
@@ -21,6 +21,31 @@ class Drone:
         self.pedido_actual = None
         self.ruta_actual = None
         self.progreso_ruta = 0  # Índice del nodo actual en la ruta
+        self.grafo = None  # Referencia al grafo de la simulación
+    
+    def asignar_grafo(self, grafo):
+        """
+        Asigna el grafo de referencia al drone.
+        
+        Args:
+            grafo: Instancia de Graph
+        """
+        self.grafo = grafo
+    
+    def _find_vertex_by_id(self, vertex_id):
+        """
+        Encuentra un vértice por su ID
+        
+        Args:
+            vertex_id: ID del vértice a buscar
+            
+        Returns:
+            Objeto Vertex o None si no se encuentra
+        """
+        for v in self.grafo.vertices():
+            if v.element() == vertex_id:
+                return v
+        return None
     
     def asignar_pedido(self, pedido):
         """
@@ -51,15 +76,26 @@ class Drone:
         Returns:
             True si se movió correctamente, False en caso contrario
         """
-        if self.estado != "en_ruta" or not self.ruta_actual:
+        if self.estado != "en_ruta" or not self.ruta_actual or not self.grafo:
             return False
         
         if self.progreso_ruta < len(self.ruta_actual) - 1:
-            nodo_actual = self.ruta_actual[self.progreso_ruta]
-            nodo_siguiente = self.ruta_actual[self.progreso_ruta + 1]
+            nodo_actual_id = self.ruta_actual[self.progreso_ruta]
+            nodo_siguiente_id = self.ruta_actual[self.progreso_ruta + 1]
+            
+            # Obtener objetos Vertex
+            nodo_actual = self._find_vertex_by_id(nodo_actual_id)
+            nodo_siguiente = self._find_vertex_by_id(nodo_siguiente_id)
+            
+            if not nodo_actual or not nodo_siguiente:
+                return False
             
             # Calcular consumo de energía para este tramo
-            peso = self.grafo.obtener_peso_arista(nodo_actual, nodo_siguiente)
+            edge = self.grafo.get_edge(nodo_actual, nodo_siguiente)
+            if not edge:
+                return False
+                
+            peso = edge.element()
             consumo = peso * 1.2 if peso else 0
             
             # Verificar si hay suficiente energía
@@ -70,10 +106,10 @@ class Drone:
             # Actualizar energía y posición
             self.energia_actual -= consumo
             self.progreso_ruta += 1
-            self.posicion_actual = nodo_siguiente
+            self.posicion_actual = nodo_siguiente_id
             
             # Verificar si es nodo de recarga para recargar energía
-            if self.grafo.vertices[nodo_siguiente].rol == 'recarga':
+            if nodo_siguiente.rol == 'recarga':
                 self.recargar()
             
             # Verificar si hemos llegado al destino
